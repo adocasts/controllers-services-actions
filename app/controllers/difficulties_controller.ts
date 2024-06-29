@@ -1,13 +1,13 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import Organization from '#models/organization'
 import { difficultyValidator } from '#validators/difficulty'
+import OrganizationService from '#services/organization_service'
 
 export default class DifficultiesController {
   /**
    * Display a list of resource
    */
   async index({ params }: HttpContext) {
-    const organization = await Organization.findOrFail(params.organizationId)
+    const organization = await OrganizationService.find(params.organizationId)
     const difficulties = await organization.related('difficulties').query().orderBy('order')
 
     return difficulties
@@ -17,7 +17,7 @@ export default class DifficultiesController {
    * Handle form submission for the create action
    */
   async store({ params, request }: HttpContext) {
-    const organization = await Organization.findOrFail(params.organizationId)
+    const organization = await OrganizationService.find(params.organizationId)
     const data = await request.validateUsing(difficultyValidator)
     const last = await organization
       .related('difficulties')
@@ -38,7 +38,7 @@ export default class DifficultiesController {
    * Handle form submission for the edit action
    */
   async update({ params, request }: HttpContext) {
-    const organization = await Organization.findOrFail(params.organizationId)
+    const organization = await OrganizationService.find(params.organizationId)
     const difficulty = await organization
       .related('difficulties')
       .query()
@@ -56,7 +56,7 @@ export default class DifficultiesController {
    * Delete record
    */
   async destroy({ params }: HttpContext) {
-    const organization = await Organization.findOrFail(params.organizationId)
+    const organization = await OrganizationService.find(params.organizationId)
     const difficulty = await organization
       .related('difficulties')
       .query()
