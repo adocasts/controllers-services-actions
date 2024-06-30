@@ -16,7 +16,23 @@ export default class DifficultiesController {
   /**
    * Handle form submission for the create action
    */
-  async store({ params, request }: HttpContext) {}
+  async store({ params, request }: HttpContext) {
+    const organization = await OrganizationService.find(params.organizationId)
+    const data = await request.validateUsing(difficultyValidator)
+    const last = await organization
+      .related('difficulties')
+      .query()
+      .orderBy('order', 'desc')
+      .select('order')
+      .first()
+
+    const difficulty = await organization.related('difficulties').create({
+      ...data,
+      order: last ? last.order + 1 : 0,
+    })
+
+    return difficulty
+  }
 
   /**
    * Handle form submission for the edit action
