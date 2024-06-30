@@ -7,20 +7,6 @@ export default class DifficultyService {
     return organization.related('difficulties').query().orderBy('order')
   }
 
-  async store(organization: Organization, data: Infer<typeof difficultyValidator>) {
-    const last = await organization
-      .related('difficulties')
-      .query()
-      .orderBy('order', 'desc')
-      .select('order')
-      .first()
-
-    return organization.related('difficulties').create({
-      ...data,
-      order: last ? last.order + 1 : 0,
-    })
-  }
-
   async update(organization: Organization, id: number, data: Infer<typeof difficultyValidator>) {
     const difficulty = await organization
       .related('difficulties')

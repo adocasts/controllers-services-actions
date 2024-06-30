@@ -27,7 +27,17 @@ export default class DifficultiesController {
   async store({ params, request }: HttpContext) {
     const organization = await this.organizationService.find(params.organizationId)
     const data = await request.validateUsing(difficultyValidator)
-    const difficulty = await this.difficultyService.store(organization, data)
+    const last = await organization
+      .related('difficulties')
+      .query()
+      .orderBy('order', 'desc')
+      .select('order')
+      .first()
+
+    const difficulty = await organization.related('difficulties').create({
+      ...data,
+      order: last ? last.order + 1 : 0,
+    })
 
     return difficulty
   }
