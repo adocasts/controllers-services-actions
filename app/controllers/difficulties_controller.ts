@@ -4,7 +4,7 @@ import GetAllDifficulties from '../actions/difficulties/get_all_difficulties.js'
 import GetOrganization from '../actions/organizations/get_organization.js'
 import UpdateDifficulty from '../actions/difficulties/update_difficulty.js'
 import DestroyDifficulty from '../actions/difficulties/destroy_difficulty.js'
-import Organization from '#models/organization'
+import StoreDifficulty from '../actions/difficulties/store_difficulty.js'
 
 export default class DifficultiesController {
   /**
@@ -21,19 +21,9 @@ export default class DifficultiesController {
    * Handle form submission for the create action
    */
   async store({ params, request }: HttpContext) {
-    const organization = await Organization.findOrFail(params.id)
+    const organization = await GetOrganization.handle({ id: params.organizationId })
     const data = await request.validateUsing(difficultyValidator)
-    const last = await organization
-      .related('difficulties')
-      .query()
-      .orderBy('order', 'desc')
-      .select('order')
-      .first()
-
-    const difficulty = await organization.related('difficulties').create({
-      ...data,
-      order: last ? last.order + 1 : 0,
-    })
+    const difficulty = await StoreDifficulty.handle({ organization, data })
 
     return difficulty
   }
